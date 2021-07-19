@@ -8,7 +8,7 @@ const { INTERNAL_SERVER_ERROR } = require('http-status');
 const app = new Koa();
 const router = new Router();
 
-const isAuthenticated = require('./middlwares/authenticated');
+const isAuthenticated = require('./middlewares/authenticated');
 const userService = require('./services/user');
 
 router.get('/user/:id', isAuthenticated, async (ctx) => {
