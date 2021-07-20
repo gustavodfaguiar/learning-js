@@ -17,9 +17,7 @@ router.get('/user/:id', isAuthenticated, async (ctx) => {
     try {
         user = userService.get(ctx.params.id);
     } catch (e) {
-        ctx.throw(INTERNAL_SERVER_ERROR, {
-            message: "Server Error"
-        });
+        ctx.throw(INTERNAL_SERVER_ERROR, "Server Error");
     }
 
     ctx.body = user;
