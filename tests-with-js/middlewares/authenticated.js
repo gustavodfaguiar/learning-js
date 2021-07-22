@@ -7,19 +7,31 @@ module.exports = async (ctx, next) => {
   try {
     jwt.verify(authorization, 'secret', { algorithm: "HS256" });
     await next();
-  } catch (e) {
-    switch (e && e.message) {
-      case 'invalid token':
-        ctx.throw(BAD_REQUEST, e.message);
+  } catch (err) {
+    switch (err && err.message) {
+      case 'invalid token' || 'invalid signature' || 'jwt expired':
+        ctx.status = err.statusCode || err.status || BAD_REQUEST;
+        ctx.body = {
+          message: err.message
+        };
         break;
-      case 'invalid signature':
-        ctx.throw(BAD_REQUEST, e.message);
-        break;
-      case 'jwt expired':
-        ctx.throw(BAD_REQUEST, e.message);
-        break;
+      // case 'invalid signature':
+      //   ctx.status = err.statusCode || err.status || BAD_REQUEST;
+      //   ctx.body = {
+      //     message: err.message
+      //   };
+      //   break;
+      // case 'jwt expired':
+      //   ctx.status = err.statusCode || err.status || BAD_REQUEST;
+      //   ctx.body = {
+      //     message: err.message
+      //   };
+      //   break;
       default:
-        ctx.throw(UNAUTHORIZED, 'Unauthorized');
+        ctx.status = err.statusCode || err.status || UNAUTHORIZED;
+        ctx.body = {
+          message: "Unauthorized"
+        };
     }
   }
 };
