@@ -2,4 +2,4 @@ test:
 	jest
 
 start-dev:
-	nodemon app.js
+	nodemon server.js
