@@ -1,42 +1,34 @@
-const httpStatus = require('http-status');
+const { OK, BAD_REQUEST, UNAUTHORIZED } = require('http-status');
 const dogCeoService = require('../services/dogCeo');
 
-// const parseValidJWT = (ctx) => {
-//     const { hash } = ctx.params;
-//     try {
-//       const { name } = jwt.decode(hash);
-//       return { name };
-//     } catch (e) {
-//       switch (e.message) {
-//         case JWT_TOKEN_EXPIRED_MESSAGE:
-//           ctx.throw(httpStatus.GONE, {
-//             code: Code.CONCIERGE.JWT_TOKEN_EXPIRED,
-//             message: Message.CONCIERGE.JWT_TOKEN_EXPIRED()
-//           });
-//           break;
-//         case JWT_SIGNATURE_INVALID_MESSAGE:
-//           ctx.throw(httpStatus.BAD_REQUEST, {
-//             code: Code.CONCIERGE.JWT_SIGNATURE_ERROR,
-//             message: Message.CONCIERGE.JWT_SIGNATURE_ERROR()
-//           });
-//           break;
-//         default:
-//           ctx.throw(httpStatus.BAD_REQUEST, {
-//             code: Code.CONCIERGE.JWT_GENERIC_ERROR,
-//             message: Message.CONCIERGE.JWT_GENERIC_ERROR()
-//           });
-//       }
-//       return false;
-//     }
-// };
+const parseValidJWT = (ctx) => {
+    const { hash } = ctx.params;
+    try {
+      const { name } = jwt.decode(hash);
+      return { name };
+    } catch (e) {
+        switch (e && e.message) {
+            case 'invalid token':
+                ctx.throw(BAD_REQUEST, e.message);
+                break;
+            case 'invalid signature':
+                ctx.throw(BAD_REQUEST, e.message);
+                break;
+            case 'jwt expired':
+                ctx.throw(BAD_REQUEST, e.message);
+                break;
+            default:
+                ctx.throw(UNAUTHORIZED, 'Unauthorized');
+        }
+    }
+};
 
 const getDog = async (ctx) => {
-    // const { name } = parseValidJWT(ctx);
-    const { name } = ctx.params;
+    const { name } = parseValidJWT(ctx);
     const dog = await dogCeoService.getDog({ name });
 
-    ctx.response.body = dog.body
-    ctx.response.status = httpStatus.OK;
+    ctx.response.body = dog
+    ctx.response.status = OK;
 };
 
 module.exports = {
