@@ -1,20 +1,17 @@
-const { OK, BAD_REQUEST, UNAUTHORIZED } = require('http-status');
+const { GONE, BAD_REQUEST, UNAUTHORIZED } = require('http-status');
 const dogCeoService = require('../services/dogCeo');
 
-const parseValidJWT = (ctx) => {
+const validJWT = (ctx) => {
     const { hash } = ctx.params;
     try {
       const { name } = jwt.decode(hash);
       return { name };
     } catch (e) {
-        switch (e && e.message) {
-            case 'invalid token':
-                ctx.throw(BAD_REQUEST, e.message);
+        switch (e.message) {
+            case 'Token expired':
+                ctx.throw(GONE, e.message);
                 break;
-            case 'invalid signature':
-                ctx.throw(BAD_REQUEST, e.message);
-                break;
-            case 'jwt expired':
+            case 'Signature verification failed':
                 ctx.throw(BAD_REQUEST, e.message);
                 break;
             default:
@@ -24,7 +21,7 @@ const parseValidJWT = (ctx) => {
 };
 
 const getDog = async (ctx) => {
-    const { name } = parseValidJWT(ctx);
+    const { name } = validJWT(ctx);
     const dog = await dogCeoService.getDog({ name });
 
     ctx.response.body = dog

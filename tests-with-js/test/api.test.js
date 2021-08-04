@@ -1,5 +1,5 @@
 const KoaContext = require('koa/lib/context');
-const { UNAUTHORIZED } = require('http-status');
+const { GONE, BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = require('http-status');
 const jwt = require('jwt-simple');
 const dogHandler = require('../src/handlers/dog');
 
@@ -7,13 +7,7 @@ jest.mock('../src/services/dogCeo');
 
 process.env.FLIGHT_OPTIONS_SECRET_TOKEN = 'my-secret';
 
-const fakeReasons = [
-  {
-    value: 'foo_bar_baz',
-    comment: 'Some random comment about the reason'
-  }
-];
-
+const fakeResponse = undefined;
 const fakeJWTPayload = {
   name: 'akita'
 };
@@ -28,7 +22,7 @@ const fakeExpiredJWT = jwt.encode(
 );
 
 
-describe('Testing handler/dog.js', () => {
+describe('Testing handler/dog', () => {
     const buildFakeContext = ({ hash = fakeJWT, request = {}, response = {} } = {}) => {
         const ctx = Object.create(KoaContext);
         ctx.params = { hash };
@@ -48,8 +42,7 @@ describe('Testing handler/dog.js', () => {
                 error = err;
             }
 
-            expect(error.status).toBe(UNAUTHORIZED);
-            expect(error.message).toBe('Unauthorized');
+            expect(error.status).toBe(GONE);
         });
 
         it('must return status code 400 when hash is an invalid JWT', async () => {
@@ -63,7 +56,20 @@ describe('Testing handler/dog.js', () => {
             }
 
             expect(error.status).toBe(BAD_REQUEST);
-            expect(error.message).toBe('xx');
         });
+
+        it('must return status code 200 when dog return successfully', async () => {
+          const ctx = buildFakeContext();
+
+          let error;
+          try {
+              await dogHandler.getDog(ctx);
+          } catch (err) {
+              error = err;
+          }
+
+          expect(ctx.body).toBe(fakeResponse);
+        });
+
     });
 });
