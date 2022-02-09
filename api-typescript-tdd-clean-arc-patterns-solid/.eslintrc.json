@@ -2,5 +2,8 @@
     "extends": "standard-with-typescript",
     "parserOptions": {
       "project": "./api-typescript-tdd-clean-arc-patterns-solid/tsconfig.json"
+    },
+    "rules": {
+      "@typescript-eslint/strict-boolean-expressions": "off"
     }
   }

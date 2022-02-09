@@ -4,7 +4,7 @@
   "description": "API Typescript utilizando TDD, Clean Architecture, Design Patterns e SOLID.",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --watch"
   },
   "keywords": [],
   "author": "",
