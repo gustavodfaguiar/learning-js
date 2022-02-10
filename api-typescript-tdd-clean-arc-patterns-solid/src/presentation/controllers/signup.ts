@@ -4,7 +4,7 @@ import { badRequest } from '../helpers/http-helper'
 export class SignUpController {
   handle (httpRequest: HttpRequest): HttpResponse {
     if (!httpRequest.body.name) {
-      // está retornando um bad Request porque está faltando parâmetro
+      // está retornando um bad Request porque está faltando o parâmetro name
       return badRequest(new MissingParamError('name'))
     }
 
