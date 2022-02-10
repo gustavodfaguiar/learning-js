@@ -1,24 +1,37 @@
 import { SignUpController } from './signup'
-import { MissingParamError } from '../erros/missing-param-error'
-import { InvalidParamError } from '../erros/invalid-param-error'
-import { EmailValidator } from '../protocols/email-validator'
+import { MissingParamError, ServerError, InvalidParamError } from '../erros'
+import { EmailValidator } from '../protocols'
+
 
 interface SutTypes {
   sut: SignUpController
   emailValidatorStub: EmailValidator
 }
 
-// isso é uma factory
-// isso é um mock stub
-const makeSut = (): SutTypes => {
+const makeEmailValidator = (): EmailValidator => {
   class EmailValidatorStub implements EmailValidator {
     isValid (email: string): boolean {
       // sempre retornar o cenário perfeito quando mockar
       return true
     }
   }
+  return new EmailValidatorStub()
+}
 
-  const emailValidatorStub = new EmailValidatorStub()
+const makeEmailValidatorWithError = (): EmailValidator => {
+  class EmailValidatorStub implements EmailValidator {
+    isValid (email: string): boolean {
+      // sempre retornar o cenário perfeito quando mockar
+      throw new Error()
+    }
+  }
+  return new EmailValidatorStub()
+}
+
+// isso é uma factory
+// isso é um mock stub
+const makeSut = (): SutTypes => {
+  const emailValidatorStub = makeEmailValidator()
   const sut = new SignUpController(emailValidatorStub)
 
   return {
@@ -100,5 +113,38 @@ describe('SignUp Controller', () => {
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('email'))
+  })
+
+  test('Should call EmailValidator with correct email', () => {
+    const { sut, emailValidatorStub } = makeSut()
+    const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'invalid_email@provider.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    sut.handle(httpRequest)
+    expect(isValidSpy).toHaveBeenCalledWith('invalid_email@provider.com')
+  })
+
+  test('Should return 500 if EmailValidator throws', () => {
+    const emailValidatorStub = makeEmailValidatorWithError()
+    const sut = new SignUpController(emailValidatorStub)
+
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'invalid_email@provider.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 })
