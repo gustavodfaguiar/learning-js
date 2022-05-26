@@ -9,6 +9,17 @@ curl -H 'Content-Type: application/json' -XPOST 'localhost:9200/bank/account/_bu
 
 ### Search
 
+- Responsável por buscar todos os campos -> SELECT * FROM ${tabela}
+- query = quero fazer uma consulta
+- match_all = quero buscar por tudo
+- sort = ordena pelo campo desejado
+- obs: existe um limite no retorno de hits
+
+retorno do resultado
+- took = tempo que levou para executar a consulta em milisegundos
+- time_out = se expirou a pesquisa ou não
+- shards = como os dados são distribuidos no elasticsearch
+
 GET /bank/_search
 {
     "query¨: { "match_all": {} },
@@ -16,6 +27,13 @@ GET /bank/_search
         { "account_number": "asc" }
     ]
 }
+
+- Responsável por buscar todos os campos -> SELECT * FROM ${tabela}
+- query = quero fazer uma consulta
+- match_all = quero buscar por tudo
+- sort = ordena pelo campo desejado
+- from = da posicão 10
+- size = quantidade de resultados
 
 GET /bank/_search
 {
@@ -27,15 +45,27 @@ GET /bank/_search
     "size": 10
 }
 
+- Responsável por buscar todos os campos -> SELECT * FROM ${tabela} WHERE
+- Entrega conforme o max_score -> a relevancia que aquele termo tem
+- Faz uma busca por termo individuais
+
 GET /bank/_search
 {
     "query": { "match": { "address": "mill lane" } },
 }
 
+- Responsável por buscar todos os campos -> SELECT * FROM ${tabela} WHERE
+- Faz uma busca por uma frase exata
+
 GET /bank/_search
 {
     "query": { "match_phrase": { "address": "mill lane" } },
 }
+
+- Responsável por buscar todos os campos -> SELECT * FROM ${tabela} WHERE
+- São expressoes boleanas que podemos combinar varios critérios de consulta
+- must = deve ter esses dados
+- must not = não deve coresponder esses dados
 
 GET /bank/_search
 {
@@ -50,6 +80,10 @@ GET /bank/_search
         }
     }
 }
+
+- Responsável por buscar todos os campos -> SELECT * FROM ${tabela} WHERE
+- range = intervalo de valores
+- filtra os resultados que o elasticsearch trouxe
 
 GET /bank/_search
 {
@@ -69,6 +103,9 @@ GET /bank/_search
 }
 
 
+- Seria o GROUP BY do sql
+- size = define a quantidade de retorno
+
 GET /bank/_search
 {
     "size": 0,
@@ -80,7 +117,6 @@ GET /bank/_search
         }
     }
 }
-
 
 GET /bank/_search
 {
