@@ -5,6 +5,7 @@ import logger from "koa-logger";
 import { config } from "./config";
 
 import healthcheckRoutes from "./routes/healthcheck";
+import codereviewvideosRoutes from "./routes/codereviewvideos";
 
 const app = new Koa();
 
@@ -19,6 +20,7 @@ app.use(
 app.use(logger());
 
 app.use(healthcheckRoutes.routes());
+app.use(codereviewvideosRoutes.routes());
 
 const server = app
   .listen(PORT, async () => {
