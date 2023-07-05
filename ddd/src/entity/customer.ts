@@ -17,7 +17,7 @@ class Customer {
     return this._name;
   }
 
-  get adress(): string {
+  get address(): string {
     return this._address;
   }
 }
